@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 using namespace std;
 
 class SwitchCaseTest
@@ -99,7 +100,7 @@ public:
     {
         for (int i = 2; i <= 100; i++)
         {
-            for (int k = 2; k < i; k++)
+            for (int k = 2; k <= sqrt(i); k++)
             {
                 if (i % k == 0)
                 {
@@ -135,7 +136,7 @@ public:
 };
 int main()
 {
-    SwitchCaseTest t;
+    /*SwitchCaseTest t;
     ForLoopTest f;
     WhileLoop l;
     DoWhileLoop d;
@@ -145,7 +146,8 @@ int main()
     d.main();
     f.main();
     t.main();
-    c.main();
+    c.main();*/
+    BreakTest b;
     b.main();
 
     return 0;

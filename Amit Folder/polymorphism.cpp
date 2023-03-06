@@ -15,6 +15,7 @@ for this function.
 */
 
 #include <iostream> 
+#include <vector>
 using namespace std;
 
 /*
@@ -34,8 +35,8 @@ class Shape {
          width = a;
          height = b;
       }
-      /*
-      virtual int area() {
+      
+     /*virtual int area() {
          cout << "Parent class area :" <<endl;
          return 0;
       }*/
@@ -43,6 +44,7 @@ class Shape {
       //pure virtual function
       //The = 0 tells the compiler that the function has no body and above virtual function will be called pure virtual function.
       virtual int area() = 0;
+      
 };
 
 class Rectangle: public Shape {
@@ -78,18 +80,33 @@ class Triangle: public Shape {
          return (width * height / 2); 
       }
 };
+class Circle: public Shape {
+   public:
+      Circle( int a = 0):Shape(a) {
+          cout << "inside Circle Constructor" << endl;
+          cout << a;
+
+       }
+      
+      int area () { 
+         cout << "Circle class area :" <<endl;
+         return (width*width*3.14); 
+      }
+};
 
 int main() {
    Shape* shape;
 
    //Shape shap;
-
+   //Shape* sha;
    Rectangle rec(10,5);
    Triangle  tri(10,5);
 
-   Rectangle rec1;
-    
-
+   //Rectangle rec1;
+   Circle cir(5);
+   
+   
+   
    // store the address of Rectangle
    shape = &rec;
    
