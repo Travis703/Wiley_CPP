@@ -59,6 +59,10 @@ int main()
         break;
         case 2:
         {
+            if(customers.size()==0){
+               cout << "There are no customers to add an account to." << endl;
+               break;
+            }
             int id = -1;
 
             cout << "Please enter your ID: " << endl;
@@ -164,6 +168,11 @@ int main()
         break;
         case 3:
         {
+            if (customers.size() == 0)
+            {
+                cout << "There are no customers accounts to check." << endl;
+                break;
+            }
             int id = -1;
             cout << "Enter the customer ID to check: ";
             try
@@ -177,29 +186,40 @@ int main()
 
             if (id != -1)
             {
-                cout << "Would you like to display balance or interest." << endl;
-                cout << "Please enter b or i: ";
-                char in;
-                char data[] = {'b', 'i'};
-                in = charCheck(in, data);
-
-                selectionSort(Customer::getID, customers);
-                if (in == 'b')
+                if (customers.at(id - 100)->getAccount())
                 {
-                    cout << "Customer: " << customers.at(id - 100)->getName() << " Balance is: ";
-                    cout << customers.at(id - 100)->getAccount()->getBalance();
+                    cout << "Would you like to display balance or interest." << endl;
+                    cout << "Please enter b or i: ";
+                    char in;
+                    char data[] = {'b', 'i'};
+                    in = charCheck(in, data);
+
+                    selectionSort(Customer::getID, customers);
+                    if (in == 'b')
+                    {
+                        cout << "Customer: " << customers.at(id - 100)->getName() << " Balance is: ";
+                        cout << customers.at(id - 100)->getAccount()->getBalance();
+                    }
+                    else
+                    {
+                        cout << "Customer: " << customers.at(id - 100)->getName() << " Interest earned is: ";
+                        cout << customers.at(id - 100)->getAccount()->getInterestEarned();
+                    }
                 }
                 else
                 {
-                    cout << "Customer: " << customers.at(id - 100)->getName() << " Interest earned is: ";
-                    cout << customers.at(id - 100)->getAccount()->getInterestEarned();
+                    cout << "The customer doesn't have an associated bank account." << endl;
                 }
             }
         }
         break;
         case 4:
         {
-
+            if (customers.size() == 0)
+            {
+                cout << "There are no customers to save." << endl;
+                break;
+            }
             cout << "Would you like sorting to be done on customer names or bank balances?" << endl;
             cout << "Please enter a choice either c or b: ";
             char c;
@@ -237,7 +257,11 @@ int main()
         break;
         case 5:
         {
-
+            if (customers.size() == 0)
+            {
+                cout << "There are no customers to save." << endl;
+                break;
+            }
             cout << "Would you like to save customers to a database or a text file?" << endl;
             cout << "Please enter t or d: ";
             char arr[] = {'t', 'd'};
@@ -264,24 +288,31 @@ int main()
         break;
         case 7:
         {
-            bool found = 0;
-            string in;
-            cout << "Enter the name of the customer to find: ";
-            getline(cin, in);
-
-            for (Customer *i : customers)
+            if (customers.size() != 0)
             {
-                if (i->getName() == in)
+                bool found = 0;
+                string in;
+                cout << "Enter the name of the customer to find: ";
+                getline(cin, in);
+
+                for (Customer *i : customers)
                 {
-                    found = 1;
-                    i->printDetails();
-                    cout << endl;
-                    break;
+                    if (i->getName() == in)
+                    {
+                        found = 1;
+                        i->printDetails();
+                        cout << endl;
+                        break;
+                    }
+                }
+                if (!found)
+                {
+                    cout << "Customer not found in the database, please try again with a new name." << endl;
                 }
             }
-            if (!found)
+            else
             {
-                cout << "Customer not found in the database, please try again with a new name." << endl;
+                cout << "There are no customers to display." << endl;
             }
         }
         break;
@@ -294,13 +325,21 @@ int main()
     }
     return 0;
 }
+
 void displayCustomers(vector<Customer *> customers)
 {
-    cout << "Our current customers are:" << endl;
-    for (Customer *i : customers)
+    if (customers.size() == 0)
     {
-        i->printDetails();
-        cout << endl;
+        cout << "There are no customers to display." << endl;
+    }
+    else
+    {
+        cout << "Our current customers are:" << endl;
+        for (Customer *i : customers)
+        {
+            i->printDetails();
+            cout << endl;
+        }
     }
 }
 int Menu()

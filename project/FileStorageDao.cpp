@@ -64,6 +64,9 @@ vector<Customer *> FileStorageDao::retrieveAllCustomers()
     ifstream in;
 
     in.open("customers.txt");
+    if(!in.is_open()){
+        return customers;
+    }
     while (!in.eof())
     {
         string customer_data;
@@ -102,6 +105,9 @@ int FileStorageDao::lastID()
 {
     ifstream in;
     in.open("customers.txt");
+    if(!in.is_open()){
+        return 99;
+    }
     string s;
     while (!in.eof())
     {
