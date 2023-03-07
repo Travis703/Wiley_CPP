@@ -217,7 +217,7 @@ int main()
         {
             if (customers.size() == 0)
             {
-                cout << "There are no customers to save." << endl;
+                cout << "There are no customers to sort." << endl;
                 break;
             }
             cout << "Would you like sorting to be done on customer names or bank balances?" << endl;
