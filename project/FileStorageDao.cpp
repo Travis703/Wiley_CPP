@@ -5,6 +5,29 @@
 #include <utility>
 using namespace std;
 
+ostream &operator<<(ostream &out, Account &bank)
+{
+    if (!&bank)
+    {
+        return out;
+    }
+    out << "," << bank.getType() << "," << bank.getAccountNumber() << ",";
+    out << bank.getBSB() << "," << bank.getBankName() << ",";
+    out << bank.getDateOpened() << "," << bank.getBalance() << ",";
+    pair<int, int> others = bank.getOther();
+    out << others.first << "," << others.second;
+    return out;
+}
+
+ostream &operator<<(ostream &out, Customer *&customer)
+{
+    out << customer->getID() << "," << customer->getName() << ",";
+    out << customer->getAge() << "," << customer->getDOB() << ",";
+    out << customer->getMobile() << "," << customer->getPassport();
+    out << *(customer->getAccount());
+    return out;
+}
+
 void FileStorageDao::saveAllCustomers(vector<Customer *> data)
 {
     ofstream out;
@@ -12,6 +35,10 @@ void FileStorageDao::saveAllCustomers(vector<Customer *> data)
     for (int i = 0; i < data.size(); i++)
     {
         out << data.at(i);
+        if (i != data.size() - 1)
+        {
+            out << endl;
+        }
     }
     out.close();
 }
@@ -35,34 +62,37 @@ vector<Customer *> FileStorageDao::retrieveAllCustomers()
 {
     vector<Customer *> customers;
     ifstream in;
+
     in.open("customers.txt");
     while (!in.eof())
     {
         string customer_data;
 
         getline(in, customer_data);
-        
+
         vector<string> data = split(customer_data, ',');
-        Bank *bank;
+        Account *bank;
+
         try
         {
-            if (stoi(data.at(7)))
+            if (stoi(data.at(6)))
             {
-                Savings* savings =new Savings(1, stol(data.at(8)), stol(data.at(9)), data.at(9), data.at(11), stod(data.at(12)), stoi(data.at(13)), stoi(data.at(14)));
+                Savings *savings = new Savings(1, stol(data.at(7)), stol(data.at(8)), data.at(9), data.at(10), stod(data.at(11)), stoi(data.at(12)), stoi(data.at(13)));
                 bank = savings;
             }
             else
             {
-                Fixed* fixed=new Fixed(0,stol(data.at(8)), stol(data.at(9)), data.at(9), data.at(11), stod(data.at(12)), stoi(data.at(13)), stoi(data.at(14)));                bank=fixed;
+                Fixed *fixed = new Fixed(0, stol(data.at(7)), stol(data.at(8)), data.at(9), data.at(10), stod(data.at(11)), stoi(data.at(12)), stoi(data.at(13)));
+                bank = fixed;
             }
+            Customer *customer = new Customer(stoi(data.at(0)), data.at(1), stoi(data.at(2)), data.at(3), stoi(data.at(4)), data.at(5), bank);
+            customers.push_back(customer);
         }
         catch (out_of_range e)
         {
-            Customer *customer = new Customer(stoi(data.at(0)), data.at(1), stoi(data.at(2)), data.at(3),stoi(data.at(4)), data.at(5));
+            Customer *customer = new Customer(stoi(data.at(0)), data.at(1), stoi(data.at(2)), data.at(3), stoi(data.at(4)), data.at(5));
+            customers.push_back(customer);
         }
-        Customer *customer = new Customer(stoi(data.at(0)), data.at(1), stoi(data.at(2)), data.at(3),stoi(data.at(4)), data.at(5), bank);
-
-        customers.push_back(customer);
     }
     in.close();
     return customers;

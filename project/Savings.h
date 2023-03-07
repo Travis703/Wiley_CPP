@@ -1,9 +1,11 @@
 #ifndef SAVINGH
 #define SAVINGH
 #include <string>
-#include "Bank.h"
+#include "Account.h"
+template <typename t1>
+int countNumber(t1 num);
 
-class Savings : public Bank
+class Savings : public Account
 {
 private:
     bool salary;
@@ -16,5 +18,6 @@ public:
     int getMinBalance();
     void calculateInterest();
     std::pair<int,int> getOther();
+    void printDetails();
 };
 #endif

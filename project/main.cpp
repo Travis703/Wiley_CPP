@@ -1,11 +1,9 @@
 #include <iostream>
 #include <vector>
-#include <map>
 
 #include "FileStorageDao.h"
 
 using namespace std;
-static int ids = FileStorageDao::lastID();
 
 int Menu();
 
@@ -17,14 +15,14 @@ char charCheck(char var, char expected[]);
 template <typename t6>
 t6 numCheck(t6 var);
 
+void displayCustomers(vector<Customer *> customers);
 string formatCheck(string var, string format);
-
-ostream &operator<<(ostream &out, Bank &bank);
-ostream &operator<<(ostream &out, Customer *&customer);
+int checkID(int id, int n);
 
 int main()
 {
     FileStorageDao storeagefile;
+
     vector<Customer *> customers = storeagefile.retrieveAllCustomers();
     int choice = Menu();
     while (choice != 8)
@@ -36,7 +34,7 @@ int main()
             int age, mobile;
             string name, passport, DOB;
 
-            cout << "Please enter the your name: ";
+            cout << "Please enter your name: ";
             cin.ignore();
             getline(cin, name);
 
@@ -52,63 +50,70 @@ int main()
 
             cout << "Enter your Date of Birth(dd/mm/yyyy): ";
             DOB = formatCheck(DOB, "dd/mm/yyyy");
-            Customer customer(ids, name, age, DOB, mobile, passport);
-            customers.push_back(&customer);
+
+            Customer *customer = new Customer(name, age, DOB, mobile, passport);
+            customers.push_back(customer);
+            cout << "Customer successfully created." << endl;
+            cout << "Your id is: " << Customer::customer_counter << endl;
         }
         break;
         case 2:
         {
-            int id;
+            int id = -1;
 
             cout << "Please enter your ID: " << endl;
-            cin >> id;
-            while (cin.fail())
+            try
             {
-                cin.clear();
-                cin.ignore();
-                cout << "Please enter your ID as an Integer: ";
-                cin >> id;
+                id = checkID(id, customers.size());
             }
-
-            if ((id - 100) >= customers.size() || id - 100 < 0)
+            catch (runtime_error e)
             {
-                cout << "An incorrect id was passed." << endl;
+                cout << e.what() << endl;
             }
-
-            else
+            if (id != -1)
             {
-                char choice;
+
                 cout << "What type of account is your bank account?";
                 cout << "Enter s for Savings and f for Fixed: ";
+
+                char choice;
                 char arr[] = {'s', 'f'};
                 choice = charCheck(choice, arr);
 
                 long account_number, BSB;
                 string bankname, date;
 
+                cout << "Enter your account number: ";
+                account_number = numCheck(account_number);
+
                 cout << "Enter BSB code: ";
-                cin >> BSB;
+                BSB = numCheck(BSB);
+
                 cout << "Enter the name of the Bank: ";
                 cin.ignore();
                 getline(cin, bankname);
 
                 cout << "Enter todays date(dd/mm/yyyy): ";
                 date = formatCheck(date, "dd/mm/yyyy");
+
                 selectionSort(Customer::getID, customers);
                 if (choice == 'f')
                 {
                     double balance;
                     cout << "Enter your starting balance: ";
                     balance = numCheck(balance);
+
                     double deposit;
                     cout << "Please specify your initial deposit: $";
                     deposit = numCheck(deposit);
+
                     while (deposit < 1000)
                     {
                         cout << "Your initial deposit must be a minimum of $1000." << endl;
                         cout << "Please specify your initial deposit: $";
                         deposit = numCheck(deposit);
                     }
+
                     int tenure;
                     cout << "Tenure options are from a minimum of 1 years to a maximum of 7 years." << endl;
                     cout << "Enter your tenure: ";
@@ -119,17 +124,17 @@ int main()
                         tenure = numCheck(tenure);
                     }
 
-                    Fixed bank(0, account_number, BSB, bankname, date, balance, deposit, tenure);
-
-                    customers.at(id - 100)->addBank(&bank);
+                    Fixed *account = new Fixed(0, account_number, BSB, bankname, date, balance, deposit, tenure);
+                    customers.at(id - 100)->addAccount(account);
                 }
                 else
                 {
-                    char s;
-                    bool salary;
                     cout << "Is the account a salary account(y,n)? ";
                     char c[] = {'y', 'n'};
+                    char s;
+                    bool salary;
                     s = charCheck(s, c);
+
                     if (s == 'y')
                     {
                         salary = 1;
@@ -139,6 +144,7 @@ int main()
                         cout << "You will have to deposit a minimum of $5000 initially." << endl;
                         salary = 0;
                     }
+
                     double balance;
                     cout << "Please specify your initial deposit: $";
                     balance = numCheck(balance);
@@ -149,8 +155,8 @@ int main()
                         balance = numCheck(balance);
                     }
 
-                    Savings bank(1, account_number, BSB, bankname, date, balance, salary, (salary) ? 0 : 5000);
-                    customers.at(id - 100)->addBank(&bank);
+                    Savings *account = new Savings(1, account_number, BSB, bankname, date, balance, salary, (salary) ? 0 : 5000);
+                    customers.at(id - 100)->addAccount(account);
                 }
             }
         }
@@ -158,73 +164,86 @@ int main()
         break;
         case 3:
         {
-            int id;
+            int id = -1;
             cout << "Enter the customer ID to check: ";
-            cin >> id;
-            while (cin.fail())
+            try
             {
-                cin.clear();
-                cin.ignore();
-                cout << "Please enter the ID as an Integer: ";
-                cin >> id;
+                id = checkID(id, customers.size());
             }
-            if (id - 100 >= customers.size() || id - 100 < 0)
+            catch (runtime_error e)
             {
-                cout << "An incorrect id was passed." << endl;
+                cout << e.what() << endl;
             }
-            else
+
+            if (id != -1)
             {
-                char in;
-                selectionSort(Customer::getID, customers);
                 cout << "Would you like to display balance or interest." << endl;
                 cout << "Please enter b or i: ";
+                char in;
                 char data[] = {'b', 'i'};
                 in = charCheck(in, data);
+
+                selectionSort(Customer::getID, customers);
                 if (in == 'b')
                 {
                     cout << "Customer: " << customers.at(id - 100)->getName() << " Balance is: ";
-                    cout << customers.at(id - 100)->getBank()->getBalance();
+                    cout << customers.at(id - 100)->getAccount()->getBalance();
                 }
                 else
                 {
                     cout << "Customer: " << customers.at(id - 100)->getName() << " Interest earned is: ";
-                    cout << customers.at(id - 100)->getBank()->getInterestEarned();
+                    cout << customers.at(id - 100)->getAccount()->getInterestEarned();
                 }
             }
         }
         break;
         case 4:
         {
-            char c;
+
             cout << "Would you like sorting to be done on customer names or bank balances?" << endl;
             cout << "Please enter a choice either c or b: ";
+            char c;
             char arr[] = {'b', 'c'};
             c = charCheck(c, arr);
+
             if (c == 'c')
             {
-
                 selectionSort(&Customer::getName, customers);
             }
             else
             {
-
-                vector<Bank *> banks;
+                vector<Account *> accounts;
                 for (Customer *i : customers)
                 {
-                    banks.push_back(i->getBank());
+                    if (i->getAccount())
+                    {
+                        accounts.push_back(i->getAccount());
+                    }
                 }
-                selectionSort(&Bank::getBalance, banks);
+                selectionSort(&Account::getBalance, accounts);
             }
             cout << "Sorting completed." << endl;
+            cout << "Would you like to display all Customers?";
+            cout << "Please enter y or n: ";
+
+            arr[0] = 'y';
+            arr[1] = 'n';
+            c = charCheck(c, arr);
+            if (c == 'y')
+            {
+                displayCustomers(customers);
+            }
         }
         break;
         case 5:
         {
-            char c;
+
             cout << "Would you like to save customers to a database or a text file?" << endl;
-            cout << "Please enter t or d";
+            cout << "Please enter t or d: ";
             char arr[] = {'t', 'd'};
+            char c;
             c = charCheck(c, arr);
+
             if (c == 't')
             {
                 cout << "saving customers to \"customers.txt\"..." << endl;
@@ -240,32 +259,29 @@ int main()
         break;
         case 6:
         {
-            cout << "The saved customers are:" << endl;
-            for (Customer *i : customers)
-            {
-
-                cout << i;
-            }
+            displayCustomers(customers);
         }
         break;
         case 7:
         {
+            bool found = 0;
             string in;
             cout << "Enter the name of the customer to find: ";
-            cin >> in;
-            bool found = 0;
+            getline(cin, in);
+
             for (Customer *i : customers)
             {
                 if (i->getName() == in)
                 {
                     found = 1;
-                    cout << i << endl;
+                    i->printDetails();
+                    cout << endl;
                     break;
                 }
             }
             if (!found)
             {
-                cout << "Customer not found in the database, please try again" << endl;
+                cout << "Customer not found in the database, please try again with a new name." << endl;
             }
         }
         break;
@@ -278,7 +294,15 @@ int main()
     }
     return 0;
 }
-
+void displayCustomers(vector<Customer *> customers)
+{
+    cout << "Our current customers are:" << endl;
+    for (Customer *i : customers)
+    {
+        i->printDetails();
+        cout << endl;
+    }
+}
 int Menu()
 {
 
@@ -291,34 +315,16 @@ int Menu()
     cout << "6. Show All Customers" << endl;
     cout << "7. Search Customers by Name" << endl;
     cout << "8. Exit" << endl;
-    cin >> choice;
+    choice = numCheck(choice);
 
     return choice;
 }
 
-ostream &operator<<(ostream &out, Bank &bank)
-{
-    out << "Your bank details are: ";
-    out << bank.getAccountNumber() << "," << bank.getBSB() << ",";
-    out << bank.getBankName() << "," << bank.getBalance() << ",";
-    out << bank.getDateOpened() << "," << bank.getInterestEarned() << ",";
-    pair<int, int> others = bank.getOther();
-    out << others.first << "," << others.second << endl;
-    return out;
-}
-
-ostream &operator<<(ostream &out, Customer *&customer)
-{
-    out << customer->getID() << "," << customer->getName() << ",";
-    out << customer->getAge() << "," << customer->getDOB() << ",";
-    out << customer->getMobile() << "," << customer->getPassport() << ",";
-    out << *(customer->getBank()) << endl;
-    return out;
-}
 template <typename t6>
 t6 numCheck(t6 var)
 {
     cin >> var;
+
     while (cin.fail())
     {
         cout << "Please enter a valid number: ";
@@ -334,25 +340,56 @@ string formatCheck(string var, string format)
     vector<string> data = FileStorageDao::split(var, '/');
     try
     {
-        int day=stoi(data.at(0)),month=stoi(data.at(1)),year=stoi(data.at(2));
 
-        if (data.size() == 3&&day>0&&day<32&&month<13&&month>0&&year>0)
+        if (data.size() == 3)
         {
+            int day = stoi(data.at(0)), month = stoi(data.at(1)), year = stoi(data.at(2));
+            if (day > 0 && day < 32 && month < 13 && month > 0 && year > 1960 && year < 2024)
+            {
 
-            return var;
+                return var;
+            }
+            else
+            {
+                throw runtime_error("Please enter valid dates");
+            }
         }
-        else{
-            cout<<"Please enter date in the correct format(dd/mm/yyyy)"<<endl;
+        else
+        {
+            throw invalid_argument("i");
         }
     }
     catch (invalid_argument e)
     {
-        cout<<"Please enter integers separated by /"<<endl;
-        
+        cout << "Please enter date in the correct format(dd/mm/yyyy)" << endl;
+        cout << "Enter integers separated by a / character: ";
     }
-    formatCheck(var, format);
+    catch (runtime_error e)
+    {
+        cout << "Please enter date in the correct format(dd/mm/yyyy)" << endl;
+        cout << e.what() << ": ";
+    }
+    return formatCheck(var, format);
 }
 
+int checkID(int id, int n)
+{
+    cin >> id;
+    while (cin.fail())
+    {
+        cin.clear();
+        cin.ignore();
+        cout << "Please enter your ID as an Integer: ";
+        cin >> id;
+    }
+
+    if ((id - 100) >= n || id - 100 < 0)
+    {
+
+        throw runtime_error("An incorrect id was passed.");
+    }
+    return id;
+}
 char charCheck(char var, char expected[])
 {
 

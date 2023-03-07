@@ -2,9 +2,11 @@
 #define FIXEDH
 #include <string>
 #include <utility>
-#include "Bank.h"
+#include "Account.h"
+template <typename t1>
+int countNumber(t1 num);
 
-class Fixed : public Bank
+class Fixed : public Account
 {
 public:
     Fixed();
@@ -12,7 +14,7 @@ public:
     void calculateInterest();
     int getDeposit();
     int getTenure();
-    
+    void printDetails();
     std::pair<int,int> getOther();
 private:
     int deposit, tenure;
